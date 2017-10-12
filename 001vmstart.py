@@ -12,6 +12,20 @@ from pyVim import connect
 from pyVmomi import vim
 
 
+import requests
+requests.packages.urllib3.disable_warnings()
+
+import ssl
+
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    # Legacy Python that doesn't verify HTTPS certificates by default
+    pass
+else:
+    # Handle target environment that doesn't support HTTPS verification
+    ssl._create_default_https_context = _create_unverified_https_context
+
 def get_args():
     parser = argparse.ArgumentParser()
 
@@ -123,15 +137,6 @@ if not isinstance(vm, vim.VirtualMachine):
 
 print "Found VirtualMachine: %s Name: %s" % (vm, vm.name)
 
-if vm.runtime.powerState == vim.VirtualMachinePowerState.poweredOn:
-    # using time.sleep we just wait until the power off action
-    # is complete. Nothing fancy here.
-    print "powering off..."
-    task = vm.PowerOff()
-    while task.info.state not in [vim.TaskInfo.State.success,
-                                  vim.TaskInfo.State.error]:
-        time.sleep(1)
-    print "power is off."
 
 
 # Sometimes we don't want a task to block execution completely
