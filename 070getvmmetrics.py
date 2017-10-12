@@ -1,17 +1,8 @@
 #!/usr/bin/env python
-"""
- Written by Lance Hasson
- Github: https://github.com/JLHasson
+# -*- coding: UTF-8 -*-
 
- Script to report all available realtime performance metrics from a
- virtual machine. Based on a Java example available in the VIM API 6.0
- documentationavailable online at:
- https://pubs.vmware.com/vsphere-60/index.jsp?topic=%2Fcom.vmware.wssdk.pg.
- doc%2FPG_Performance.18.4.html&path=7_1_0_1_15_2_4
 
- Requirements:
-     VM tools must be installed on all virtual machines.
-"""
+
 
 from pyVmomi import vim
 from tools import cli

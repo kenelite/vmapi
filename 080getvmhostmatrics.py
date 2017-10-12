@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-#!/usr/bin/python
-# Author: William Lam
-# Website: www.virtuallyghetto.com
-# Product: VMware vSphere
-# Description: pyvmomi script that generates ESXi performance support bundle connected to vCenter Server
-# Reference: http://www.virtuallyghetto.com/2016/06/using-the-vsphere-api-to-remotely-generate-esxi-performance-support-bundles.html
+
+
 
 import atexit
 import argparse

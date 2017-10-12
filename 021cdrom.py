@@ -1,17 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-"""
-Written by Nathan Prziborowski
-Github: https://github.com/prziborowski
 
-This code is released under the terms of the Apache 2
-http://www.apache.org/licenses/LICENSE-2.0.html
-
-Example script shows how to add a virtual CD-ROM device to a VM,
-using a physical device and an iso path and removing the device.
-
-"""
 import sys
 from pyVmomi import vim
 from pyVim.connect import SmartConnect
