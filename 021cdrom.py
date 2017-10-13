@@ -2,10 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 
-
-
 import sys
-
 from pyVmomi import vim
 from pyVim.connect import SmartConnect
 from pyVim.task import WaitForTask
@@ -25,8 +22,8 @@ context.verify_mode = ssl.CERT_NONE
 
 # FIX SSL ISSUES WITH PYVMOMI AND PYTHON 2.7.9
 
-
-
+# Prerequisite for VM (for simplicity sake)
+# is there is an existing IDE controller.
 
 
 def setup_args():
@@ -118,7 +115,8 @@ def main():
 
         cdroms = find_device(vm, vim.vm.device.VirtualCdrom)
         cdrom = filter(lambda x: type(x.backing) == type(backing) and
-                       x.backing.deviceName == cdrom_lun.deviceName, cdroms)[0]
+                       x.backing.deviceName == cdrom_lun.deviceName,
+                       cdroms)[0]
     else:
         print('Skipping physical CD-Rom test as no device present.')
 
