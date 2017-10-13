@@ -104,14 +104,12 @@ def main():
                                              vc_cert)
     vc_fingerprint = vc_pem.digest('sha1')
 
-    print session
-
     print "Open the following URL in your browser to access the " \
           "Remote Console.\n" \
           "You have 60 seconds to open the URL, or the session" \
           "will be terminated.\n"
-    print "https://" + args.host + ":" + console_port + "/console/?vmId=" \
-          + str(vm_moid) + "&vmName=" + args.name + "&host=" + vcenter_fqdn \
+    print "https://" + args.host + ":" + console_port + "/vsphere-client/webconsole.html?vmId=" \
+          + str(vm_moid) + "&vmName=" + args.name + "&host=" + args.host \
           + "&sessionTicket=" + session + "&thumbprint=" + vc_fingerprint
     print "Waiting for 60 seconds, then exit"
     time.sleep(60)
