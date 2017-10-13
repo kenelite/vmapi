@@ -2,16 +2,31 @@
 # -*- coding: UTF-8 -*-
 
 
+
+
 import sys
+
 from pyVmomi import vim
 from pyVim.connect import SmartConnect
 from pyVim.task import WaitForTask
 from tools import cli
 
-__author__ = 'prziborowski'
+# FIX SSL ISSUES WITH PYVMOMI AND PYTHON 2.7.9
+import ssl
+import requests
+context = None
 
-# Prerequisite for VM (for simplicity sake)
-# is there is an existing IDE controller.
+# Disabling urllib3 ssl warnings
+requests.packages.urllib3.disable_warnings()
+
+# Disabling SSL certificate verification
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+context.verify_mode = ssl.CERT_NONE
+
+# FIX SSL ISSUES WITH PYVMOMI AND PYTHON 2.7.9
+
+
+
 
 
 def setup_args():
@@ -74,7 +89,7 @@ def new_cdrom_spec(controller_key, backing):
 
 def main():
     args = setup_args()
-    si = SmartConnect(host=args.host, user=args.user, pwd=args.password)
+    si = SmartConnect(host=args.host, user=args.user, pwd=args.password, sslContext=context)
     if args.datacenter:
         dc = get_dc(si, args.datacenter)
     else:
@@ -103,8 +118,7 @@ def main():
 
         cdroms = find_device(vm, vim.vm.device.VirtualCdrom)
         cdrom = filter(lambda x: type(x.backing) == type(backing) and
-                       x.backing.deviceName == cdrom_lun.deviceName,
-                       cdroms)[0]
+                       x.backing.deviceName == cdrom_lun.deviceName, cdroms)[0]
     else:
         print('Skipping physical CD-Rom test as no device present.')
 

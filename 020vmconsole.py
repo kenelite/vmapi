@@ -14,6 +14,21 @@ from pyVmomi import vim
 from tools import cli
 
 
+
+# FIX SSL ISSUES WITH PYVMOMI AND PYTHON 2.7.9
+import ssl
+import requests
+context = None
+
+# Disabling urllib3 ssl warnings
+requests.packages.urllib3.disable_warnings()
+
+# Disabling SSL certificate verification
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+context.verify_mode = ssl.CERT_NONE
+
+# FIX SSL ISSUES WITH PYVMOMI AND PYTHON 2.7.9
+
 def get_vm(content, name):
     try:
         name = unicode(name, 'utf-8')
@@ -58,7 +73,8 @@ def main():
         si = SmartConnect(host=args.host,
                           user=args.user,
                           pwd=args.password,
-                          port=int(args.port))
+                          port=int(args.port),
+                          sslContext = context)
     except Exception as e:
         print 'Could not connect to vCenter host'
         print repr(e)
@@ -73,7 +89,7 @@ def main():
 
     vcenter_data = content.setting
     vcenter_settings = vcenter_data.setting
-    console_port = '7331'
+    console_port = '9443'
 
     for item in vcenter_settings:
         key = getattr(item, 'key')
@@ -88,11 +104,13 @@ def main():
                                              vc_cert)
     vc_fingerprint = vc_pem.digest('sha1')
 
+    print session
+
     print "Open the following URL in your browser to access the " \
           "Remote Console.\n" \
           "You have 60 seconds to open the URL, or the session" \
           "will be terminated.\n"
-    print "http://" + args.host + ":" + console_port + "/console/?vmId=" \
+    print "https://" + args.host + ":" + console_port + "/console/?vmId=" \
           + str(vm_moid) + "&vmName=" + args.name + "&host=" + vcenter_fqdn \
           + "&sessionTicket=" + session + "&thumbprint=" + vc_fingerprint
     print "Waiting for 60 seconds, then exit"
