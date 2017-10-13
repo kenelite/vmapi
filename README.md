@@ -7,11 +7,10 @@ VMware vSphere python api
 * stop_vm
 * restart_vm
 * suspend_vm
-* restore_vm
 
 #### 020 VM web console
+* vm_cdrom_iso
 * vm_web_console
-* vm_cdrom
 
 
 #### 030 Clone VM
