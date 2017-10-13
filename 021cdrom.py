@@ -2,11 +2,12 @@
 # -*- coding: UTF-8 -*-
 
 
-import sys
-from pyVmomi import vim
-from pyVim.connect import SmartConnect
-from pyVim.task import WaitForTask
+import atexit
+import requests
 from tools import cli
+from pyVmomi import vim
+from pyVim.connect import SmartConnect, Disconnect
+from tools import tasks
 
 # FIX SSL ISSUES WITH PYVMOMI AND PYTHON 2.7.9
 import ssl
@@ -22,132 +23,108 @@ context.verify_mode = ssl.CERT_NONE
 
 # FIX SSL ISSUES WITH PYVMOMI AND PYTHON 2.7.9
 
-# Prerequisite for VM (for simplicity sake)
-# is there is an existing IDE controller.
+
+def update_virtual_cd_backend_by_obj(si, vm_obj, cdrom_number,
+                                     full_path_to_iso=None):
+    """ Updates Virtual Machine CD/DVD backend device
+    :param vm_obj: virtual machine object vim.VirtualMachine
+    :param cdrom_number: CD/DVD drive unit number
+    :param si: Service Instance
+    :param full_path_to_iso: Full path to iso
+    :return: True or false in case of success or error
+    """
+
+    cdrom_prefix_label = 'CD/DVD drive '
+    cdrom_label = cdrom_prefix_label + str(cdrom_number)
+    virtual_cdrom_device = None
+    for dev in vm_obj.config.hardware.device:
+        if isinstance(dev, vim.vm.device.VirtualCdrom) \
+                and dev.deviceInfo.label == cdrom_label:
+            virtual_cdrom_device = dev
+
+    if not virtual_cdrom_device:
+        raise RuntimeError('Virtual {} could not '
+                           'be found.'.format(cdrom_label))
+
+    virtual_cd_spec = vim.vm.device.VirtualDeviceSpec()
+    virtual_cd_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.edit
+    virtual_cd_spec.device = vim.vm.device.VirtualCdrom()
+    virtual_cd_spec.device.controllerKey = virtual_cdrom_device.controllerKey
+    virtual_cd_spec.device.key = virtual_cdrom_device.key
+    virtual_cd_spec.device.connectable = \
+        vim.vm.device.VirtualDevice.ConnectInfo()
+    # if full_path_to_iso is provided it will mount the iso
+    if full_path_to_iso:
+        virtual_cd_spec.device.backing = \
+            vim.vm.device.VirtualCdrom.IsoBackingInfo()
+        virtual_cd_spec.device.backing.fileName = full_path_to_iso
+        virtual_cd_spec.device.connectable.connected = True
+        virtual_cd_spec.device.connectable.startConnected = True
+    else:
+        virtual_cd_spec.device.backing = \
+            vim.vm.device.VirtualCdrom.RemotePassthroughBackingInfo()
+    # Allowing guest control
+    virtual_cd_spec.device.connectable.allowGuestControl = True
+
+    dev_changes = []
+    dev_changes.append(virtual_cd_spec)
+    spec = vim.vm.ConfigSpec()
+    spec.deviceChange = dev_changes
+    task = vm_obj.ReconfigVM_Task(spec=spec)
+    tasks.wait_for_tasks(si, [task])
+    return True
 
 
-def setup_args():
+def get_args():
     parser = cli.build_arg_parser()
-    parser.add_argument('-n', '--name',
-                        help='Name of the VM to test CD-rom on')
-    parser.add_argument('-i', '--iso',
-                        help='ISO to use in test. Use datastore path format. '
-                              'E.g. [datastore1] path/to/file.iso')
-    parser.add_argument('-d', '--datacenter',
-                        help='Name of datacenter to search on. '
-                             'Defaults to first.')
-    return cli.prompt_for_password(parser.parse_args())
+    parser.add_argument('-n', '--vmname', required=True,
+                        help="Name of the VirtualMachine you want to change.")
+    parser.add_argument('-m', '--unitnumber', required=True,
+                        help='CD/DVD unit number.', type=int)
+    parser.add_argument('-i', '--iso', required=False,
+                        help='Full path to iso. i.e. "[ds1] folder/Ubuntu.iso"'
+                             ' If not provided, backend will'
+                             ' set to RemotePassThrough')
+    my_args = parser.parse_args()
+    return cli.prompt_for_password(my_args)
 
 
-def get_dc(si, name):
-    for dc in si.content.rootFolder.childEntity:
-        if dc.name == name:
-            return dc
-    raise Exception('Failed to find datacenter named %s' % name)
-
-
-# Returns the first cdrom if any, else None.
-def get_physical_cdrom(host):
-    for lun in host.configManager.storageSystem.storageDeviceInfo.scsiLun:
-        if lun.lunType == 'cdrom':
-            return lun
-    return None
-
-
-def find_free_ide_controller(vm):
-    for dev in vm.config.hardware.device:
-        if isinstance(dev, vim.vm.device.VirtualIDEController):
-            # If there are less than 2 devices attached, we can use it.
-            if len(dev.device) < 2:
-                return dev
-    return None
-
-
-def find_device(vm, device_type):
-    result = []
-    for dev in vm.config.hardware.device:
-        if isinstance(dev, device_type):
-            result.append(dev)
-    return result
-
-
-def new_cdrom_spec(controller_key, backing):
-    connectable = vim.vm.device.VirtualDevice.ConnectInfo()
-    connectable.allowGuestControl = True
-    connectable.startConnected = True
-
-    cdrom = vim.vm.device.VirtualCdrom()
-    cdrom.controllerKey = controller_key
-    cdrom.key = -1
-    cdrom.connectable = connectable
-    cdrom.backing = backing
-    return cdrom
+def get_obj(content, vim_type, name):
+    obj = None
+    container = content.viewManager.CreateContainerView(
+        content.rootFolder, vim_type, True)
+    for c in container.view:
+        if c.name == name:
+            obj = c
+            break
+    return obj
 
 
 def main():
-    args = setup_args()
-    si = SmartConnect(host=args.host, user=args.user, pwd=args.password, sslContext=context)
-    if args.datacenter:
-        dc = get_dc(si, args.datacenter)
+    args = get_args()
+
+    # connect to vc
+    si = SmartConnect(
+        host=args.host,
+        user=args.user,
+        pwd=args.password,
+        port=args.port,
+        sslContext=context)
+    # disconnect vc
+    atexit.register(Disconnect, si)
+
+    content = si.RetrieveContent()
+    print 'Searching for VM {}'.format(args.vmname)
+    vm_obj = get_obj(content, [vim.VirtualMachine], args.vmname)
+
+    if vm_obj:
+        update_virtual_cd_backend_by_obj(si, vm_obj, args.unitnumber, args.iso)
+        device_change = args.iso if args.iso else 'Client Device'
+        print 'VM CD/DVD {} successfully' \
+              ' state changed to {}'.format(args.unitnumber, device_change)
     else:
-        dc = si.content.rootFolder.childEntity[0]
+        print "VM not found"
 
-    vm = si.content.searchIndex.FindChild(dc.vmFolder, args.name)
-    if vm is None:
-        raise Exception('Failed to find VM %s in datacenter %s' %
-                        (dc.name, args.name))
-
-    controller = find_free_ide_controller(vm)
-    if controller is None:
-        raise Exception('Failed to find a free slot on the IDE controller')
-
-    cdrom = None
-
-    cdrom_lun = get_physical_cdrom(vm.runtime.host)
-    if cdrom_lun is not None:
-        backing = vim.vm.device.VirtualCdrom.AtapiBackingInfo()
-        backing.deviceName = cdrom_lun.deviceName
-        deviceSpec = vim.vm.device.VirtualDeviceSpec()
-        deviceSpec.device = new_cdrom_spec(controller.key, backing)
-        deviceSpec.operation = vim.vm.device.VirtualDeviceSpec.Operation.add
-        configSpec = vim.vm.ConfigSpec(deviceChange=[deviceSpec])
-        WaitForTask(vm.Reconfigure(configSpec))
-
-        cdroms = find_device(vm, vim.vm.device.VirtualCdrom)
-        cdrom = filter(lambda x: type(x.backing) == type(backing) and
-                       x.backing.deviceName == cdrom_lun.deviceName,
-                       cdroms)[0]
-    else:
-        print('Skipping physical CD-Rom test as no device present.')
-
-    op = vim.vm.device.VirtualDeviceSpec.Operation
-    iso = args.iso
-    if iso is not None:
-        deviceSpec = vim.vm.device.VirtualDeviceSpec()
-        if cdrom is None:  # add a cdrom
-            backing = vim.vm.device.VirtualCdrom.IsoBackingInfo(fileName=iso)
-            cdrom = new_cdrom_spec(controller.key, backing)
-            deviceSpec.operation = op.add
-        else:  # edit an existing cdrom
-            backing = vim.vm.device.VirtualCdrom.IsoBackingInfo(fileName=iso)
-            cdrom.backing = backing
-            deviceSpec.operation = op.edit
-        deviceSpec.device = cdrom
-        configSpec = vim.vm.ConfigSpec(deviceChange=[deviceSpec])
-        WaitForTask(vm.Reconfigure(configSpec))
-
-        cdroms = find_device(vm, vim.vm.device.VirtualCdrom)
-        cdrom = filter(lambda x: type(x.backing) == type(backing) and
-                       x.backing.fileName == iso, cdroms)[0]
-    else:
-        print('Skipping ISO test as no iso provided.')
-
-    if cdrom is not None:  # Remove it
-        deviceSpec = vim.vm.device.VirtualDeviceSpec()
-        deviceSpec.device = cdrom
-        deviceSpec.operation = op.remove
-        configSpec = vim.vm.ConfigSpec(deviceChange=[deviceSpec])
-        WaitForTask(vm.Reconfigure(configSpec))
-
-if __name__ == '__main__':
+# start
+if __name__ == "__main__":
     main()
