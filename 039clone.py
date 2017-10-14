@@ -162,9 +162,28 @@ def main():
 
     while task.info.state not in [vim.TaskInfo.State.success,
                                   vim.TaskInfo.State.error]:
-        time.sleep(5)
-        print task.info.state
+        time.sleep(10)
+        print "Clone VM task state: %s" % task.info.state
 
+
+    vmspec = vim.vm.ConfigSpec()
+    vmspec.numCPUs = int(args.cpu)
+    vmspec.memoryMB = int(args.mem) * 1024
+
+    newvm = get_vm_by_name(si, args.name)
+    task1 = newvm.Reconfigure(vmspec)
+
+    while task1.info.state not in [vim.TaskInfo.State.success,
+                                  vim.TaskInfo.State.error]:
+        time.sleep(5)
+        print "Configure VM CPU and Memory task state: %s" % task1.info.state
+
+    task2 = newvm.PowerOn()
+
+    while task2.info.state not in [vim.TaskInfo.State.success,
+                                  vim.TaskInfo.State.error]:
+        time.sleep(5)
+        print "PowerON VM task state: %s" %  task1.info.state
 
 if __name__ == "__main__":
     main()
