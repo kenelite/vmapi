@@ -142,47 +142,47 @@ def PrintVmInfo(vm, content, vchtime, interval, perf_dict, ):
     networkRx = (float(sum(statNetworkRx[0].value[0].value) * 8 / 1024) / statInt)
 
     print('\nNOTE: Any VM statistics are averages of the last {} minutes\n'.format(statInt / 3))
-    print('Server Name                    :', summary.config.name)
-    print('Description                    :', summary.config.annotation)
-    print('Guest                          :', summary.config.guestFullName)
+    print('Server Name               :', summary.config.name)
+    print('Description               :', summary.config.annotation)
+    print('Guest                     :', summary.config.guestFullName)
     if vm.rootSnapshot:
-        print('Snapshot Status                : Snapshots present')
+        print('Snapshot Status           : Snapshots present')
     else:
-        print('Snapshot Status                : No Snapshots')
-    print('VM .vmx Path                   :', summary.config.vmPathName)
+        print('Snapshot Status          : No Snapshots')
+    print('VM .vmx Path              :', summary.config.vmPathName)
     try:
-        print('Virtual Disks                  :', disk_list[0])
+        print('Virtual Disks             :', disk_list[0])
         if len(disk_list) > 1:
             disk_list.pop(0)
             for each_disk in disk_list:
-                print('                                ', each_disk)
+                print('                               ', each_disk)
     except IndexError:
         pass
-    print('Virtual NIC(s)                 :', network_list[0])
+    print('Virtual NIC(s)            :', network_list[0])
     if len(network_list) > 1:
         network_list.pop(0)
         for each_vnic in network_list:
-            print('                                ', each_vnic)
-    print('[VM] Number of vCPUs           :', summary.config.numCpu)
-    print('[VM] CPU Ready                 : Average {:.1f} %, Maximum {:.1f} %'.format((cpuReady / 20000 * 100),
+            print('                            ', each_vnic)
+    print('Number of vCPUs           :', summary.config.numCpu)
+    print('CPU Ready                 : Average {:.1f} %, Maximum {:.1f} %'.format((cpuReady / 20000 * 100),
                                                                                        ((float(max(
                                                                                            statCpuReady[0].value[
                                                                                                0].value)) / 20000 * 100))))
-    print('[VM] CPU (%)                   : {:.0f} %'.format(cpuUsage))
-    print('[VM] Memory                    : {} MB ({:.1f} GB)'.format(summary.config.memorySizeMB, (float(summary.config.memorySizeMB) / 1024)))
-    print('[VM] Memory Shared             : {:.0f} %, {:.0f} MB'.format(
+    print('CPU (%)                   : {:.0f} %'.format(cpuUsage))
+    print('Memory                    : {} MB ({:.1f} GB)'.format(summary.config.memorySizeMB, (float(summary.config.memorySizeMB) / 1024)))
+    print('Memory Shared             : {:.0f} %, {:.0f} MB'.format(
         ((memoryShared / summary.config.memorySizeMB) * 100), memoryShared))
-    print('[VM] Memory Balloon            : {:.0f} %, {:.0f} MB'.format(
+    print('Memory Balloon            : {:.0f} %, {:.0f} MB'.format(
         ((memoryBalloon / summary.config.memorySizeMB) * 100), memoryBalloon))
-    print('[VM] Memory Swapped            : {:.0f} %, {:.0f} MB'.format(
+    print('Memory Swapped            : {:.0f} %, {:.0f} MB'.format(
         ((memorySwapped / summary.config.memorySizeMB) * 100), memorySwapped))
-    print('[VM] Memory Active             : {:.0f} %, {:.0f} MB'.format(
+    print('Memory Active             : {:.0f} %, {:.0f} MB'.format(
         ((memoryActive / summary.config.memorySizeMB) * 100), memoryActive))
-    print('[VM] Datastore Average IO      : Read: {:.0f} IOPS, Write: {:.0f} IOPS'.format(DatastoreIoRead,
+    print('Datastore Average IO      : Read: {:.0f} IOPS, Write: {:.0f} IOPS'.format(DatastoreIoRead,
                                                                                           DatastoreIoWrite))
-    print('[VM] Datastore Average Latency : Read: {:.0f} ms, Write: {:.0f} ms'.format(DatastoreLatRead,
+    print('Datastore Average Latency : Read: {:.0f} ms, Write: {:.0f} ms'.format(DatastoreLatRead,
                                                                                       DatastoreLatWrite))
-    print('[VM] Overall Network Usage     : Transmitted {:.3f} Mbps, Received {:.3f} Mbps'.format(networkTx, networkRx))
+    print('Overall Network Usage     : Transmitted {:.3f} Mbps, Received {:.3f} Mbps'.format(networkTx, networkRx))
 
 
 def StatCheck(perf_dict, counter_name):
