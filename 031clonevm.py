@@ -176,26 +176,34 @@ def main():
     cloneSpec = vim.vm.CloneSpec(powerOn=False, template=False, location=relocate_spec)#,
     #                             customization=guest_customization_spec.spec)
 
+    print "Stage 1: Cloning VM..."
+
     taskclone = template_vm.Clone(name=args.name, folder=template_vm.parent, spec=cloneSpec)
 
     while taskclone.info.state not in [vim.TaskInfo.State.success,
                                   vim.TaskInfo.State.error]:
         time.sleep(10)
-        print "Clone VM task state: %s" % taskclone.info.state
+        print "     Clone VM task state: %s" % taskclone.info.state
 
+
+
+    print "Stage 2: Configuring VM CPU and Memory..."
 
     vmspec = vim.vm.ConfigSpec()
     vmspec.numCPUs = int(args.cpu)
     vmspec.memoryMB = int(args.mem) * 1024
 
     newvm = get_vm_by_name(si, args.name)
+
+
     taskcpu = newvm.Reconfigure(vmspec)
 
     while taskcpu.info.state not in [vim.TaskInfo.State.success,
                                   vim.TaskInfo.State.error]:
         time.sleep(5)
-        print "Configure VM CPU and Memory task state: %s" % taskcpu.info.state
+        print "     Configure VM CPU and Memory task state: %s" % taskcpu.info.state
 
+##################poweron###########################################
 
 
     adaptermap = vim.vm.customization.AdapterMapping()
@@ -220,16 +228,25 @@ def main():
     customspec.globalIPSettings = globalip
 
 
-    print "Reconfiguring VM Networks . . ."
+    print "Stage 3: Reconfiguring VM Networks . . ."
 
-    task = newvm.Customize(spec=customspec)
+    tasknetwork = newvm.Customize(spec=customspec)
+    while tasknetwork.info.state not in [vim.TaskInfo.State.success,
+                                  vim.TaskInfo.State.error]:
+        time.sleep(5)
+        print "     Reconfigure VM network task state: %s" % tasknetwork.info.state
+
+
+##################poweron###########################################
+
+    print "Stage 4: Powering on VM . . ."
 
     taskpoweron = newvm.PowerOn()
 
     while taskpoweron.info.state not in [vim.TaskInfo.State.success,
                                   vim.TaskInfo.State.error]:
         time.sleep(5)
-        print "PowerON VM task state: %s" %  taskpoweron.info.state
+        print "     PowerON VM task state: %s" %  taskpoweron.info.state
 
 if __name__ == "__main__":
     main()
