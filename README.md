@@ -27,13 +27,13 @@ VMware vSphere python api
 * suspended_vm
 
 
-#### 050 Get VM list from VMhost
+#### 050 Get VM list from VMhost - finished.
 
 
 #### 060 Get VMhost from vm - finished.
 
 
-#### 070 Get VM matrics
+#### 070 Get VM matrics - finished.
 * cpu
 * mem
 * disk
