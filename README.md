@@ -85,7 +85,7 @@ Return the VM web console
     https://10.0.0.100:9443/vsphere-client/webconsole.html?vmId=vm-22&vmName=CentOS6&host=10.0.0.100&sessionTicket=cst-VCT-520bbd08-60ea-b5db-c3d9-d56cc9510dd6--tp-D8-7A-AE-95-55-65-63-EC-1E-CE-DB-9F-50-66-EE-9F-4D-CF-2E-BD&thumbprint=D8:7A:AE:95:55:65:63:EC:1E:CE:DB:9F:50:66:EE:9F:4D:CF:2E:BD
     Waiting for 60 seconds, then exit
 
-[webconsole](https://github.com/kenelite/vmapi/blob/master/resource/webconsole.jpg)
+![webconsole](./resource/webconsole.jpg)
 
 Please open this link in the browser.
 
