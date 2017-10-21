@@ -66,12 +66,12 @@ delete VM
 Attach ISO file to VM
 
 
-    python 006destroy.py -s vcip -o 443 -u administrator@vsphere.local -p password -n CentOS6 -m 1 -i [ds1]centos.iso
+    python 021cdrom.py -s vcip -o 443 -u administrator@vsphere.local -p password -n CentOS6 -m 1 -i [ds1]centos.iso
 
 Deattach ISO file from VM
 
 
-    python 006destroy.py -s vcip -o 443 -u administrator@vsphere.local -p password -n CentOS6 -m 1
+    python 021cdrom.py -s vcip -o 443 -u administrator@vsphere.local -p password -n CentOS6 -m 1
 
 Return the VM web console
 
