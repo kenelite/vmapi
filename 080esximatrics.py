@@ -117,6 +117,12 @@ if esxihost:
     print('ESXi Memory Usage            : Used: {:.0f} GB, Total: {:.0f} GB\n'.format(
         (float(esxihost.summary.quickStats.overallMemoryUsage) / 1024),
         (float(esxihost.summary.hardware.memorySize) / 1024 / 1024 / 1024)))
+
+    for each_ds in esxihost.datastore:
+        print('Datastore Name               : {}'.format(each_ds.name))
+        print('Datastore Capacity           : {:.1f}GB '.format(float(each_ds.summary.capacity) /1024/1024/1024))
+        print('Datastore FreeSpace          : {:.1f}GB'.format(float(each_ds.summary.freeSpace) /1024/1024/1024))
+
 else:
     print('ESXi {} not found'.format(args.esxi))
 

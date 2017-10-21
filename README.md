@@ -163,9 +163,14 @@ get the vm running status.
     python 080esximatrics.py -s vcip -o 443 -u administrator@vsphere.local -p password -e 10.0.0.130
     
     Output:
-    ESXi Name: 10.0.0.130
-    ESXi CPU Detail  : Processor Sockets: 2, Cores per Socket 2
-    ESXi CPU Type: Intel(R) Core(TM) i7-3630QM CPU @ 2.40GHz
-    ESXi CPU Usage   : Used: 183 Mhz, Total: 9576 Mhz
-    ESXi Memory Usage: Used: 2 GB, Total: 4 GB
+    ESXi Name                    : 10.0.0.130
+	ESXi CPU Detail              : Processor Sockets: 2, Cores per Socket 2
+	ESXi CPU Type                : Intel(R) Core(TM) i7-3630QM CPU @ 2.40GHz
+	ESXi CPU Usage               : Used: 129 Mhz, Total: 9576 Mhz
+	ESXi Memory Usage            : Used: 2 GB, Total: 4 GB
+
+	Datastore Name               : ds1
+	Datastore Capacity           : 92.5GB
+	Datastore FreeSpace          : 77.9GB
+
     
