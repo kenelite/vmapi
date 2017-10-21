@@ -6,7 +6,10 @@ download from following link,
 https://www.python.org/downloads/release/python-2714/
 
 python modules,
-shows in the piplist.md
+shows in the requirements.txt
+
+
+    pip install -r requirements.txt
 
 
 # Usage
@@ -32,35 +35,33 @@ shows in the piplist.md
     
 
 #### 010 VM operations
-* poweron VM
+poweron VM
 
     python 001poweron.py -s vcip -o 443 -u administrator@vsphere.local -p password -n CentOS6
 
-* poweroff VM
+poweroff VM
 
     python 002poweroff.py -s vcip -o 443 -u administrator@vsphere.local -p password -n CentOS6
 
-* reboot VM
+reboot VM
 
     python 003reboot.py -s vcip -o 443 -u administrator@vsphere.local -p password -n CentOS6
 
-* suspend VM
+suspend VM
 
 
     python 004suspend.py -s vcip -o 443 -u administrator@vsphere.local -p password -n CentOS6
 
-* reset VM
+reset VM
 
     python 005reset.py -s vcip -o 443 -u administrator@vsphere.local -p password -n CentOS6
 
-* delete VM
-
+delete VM
 
     python 006destroy.py -s vcip -o 443 -u administrator@vsphere.local -p password -n CentOS6
 
 #### 020 VM web console
 
-* vm_cdrom_iso
 
 Attach ISO file to VM
 
@@ -72,7 +73,7 @@ Deattach ISO file from VM
 
     python 006destroy.py -s vcip -o 443 -u administrator@vsphere.local -p password -n CentOS6 -m 1
 
-* vm_web_console
+Return the VM web console
 
 
     python 022console.py -s vcip -o 443 -u administrator@vsphere.local -p password -n CentOS6
@@ -84,9 +85,12 @@ Deattach ISO file from VM
     https://10.0.0.100:9443/vsphere-client/webconsole.html?vmId=vm-22&vmName=CentOS6&host=10.0.0.100&sessionTicket=cst-VCT-520bbd08-60ea-b5db-c3d9-d56cc9510dd6--tp-D8-7A-AE-95-55-65-63-EC-1E-CE-DB-9F-50-66-EE-9F-4D-CF-2E-BD&thumbprint=D8:7A:AE:95:55:65:63:EC:1E:CE:DB:9F:50:66:EE:9F:4D:CF:2E:BD
     Waiting for 60 seconds, then exit
 
+[webconsole](https://github.com/kenelite/vmapi/blob/master/resource/webconsole.jpg)
+
 Please open this link in the browser.
 
 #### 030 Clone VM
+
 The template vm must have the vmtools installed.
 
     python 031clonevm.py -s vcip -o 443 -u administrator@vsphere.local -p password -t CentOS6 -n xxx -c cluster -cpu 1 -mem 2 -ip 10.0.0.240 -mask 255.255.255.0 -gw 10.0.0.2 -dns 10.0.0.2 -domain domain.com
