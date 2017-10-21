@@ -106,22 +106,22 @@ content = si.RetrieveContent()
 esxihost = get_host_by_name(si, args.esxi)
 
 if esxihost:
-    print('ESXi Name                    : {}'.format(esxihost.name))
-    print('ESXi CPU Detail              : Processor Sockets: {}, Cores per Socket {}'.format(
+    print('ESXi Name               : {}'.format(esxihost.name))
+    print('ESXi CPU Detail         : Processor Sockets: {}, Cores per Socket {}'.format(
         esxihost.summary.hardware.numCpuPkgs,
         (esxihost.summary.hardware.numCpuCores / esxihost.summary.hardware.numCpuPkgs)))
-    print('ESXi CPU Type                : {}'.format(esxihost.summary.hardware.cpuModel))
-    print('ESXi CPU Usage               : Used: {} Mhz, Total: {} Mhz'.format(
+    print('ESXi CPU Type           : {}'.format(esxihost.summary.hardware.cpuModel))
+    print('ESXi CPU Usage          : Used: {} Mhz, Total: {} Mhz'.format(
         esxihost.summary.quickStats.overallCpuUsage,
         (esxihost.summary.hardware.cpuMhz * esxihost.summary.hardware.numCpuCores)))
-    print('ESXi Memory Usage            : Used: {:.0f} GB, Total: {:.0f} GB\n'.format(
+    print('ESXi Memory Usage       : Used: {:.0f} GB, Total: {:.0f} GB\n'.format(
         (float(esxihost.summary.quickStats.overallMemoryUsage) / 1024),
         (float(esxihost.summary.hardware.memorySize) / 1024 / 1024 / 1024)))
 
     for each_ds in esxihost.datastore:
-        print('Datastore Name               : {}'.format(each_ds.name))
-        print('Datastore Capacity           : {:.1f}GB '.format(float(each_ds.summary.capacity) /1024/1024/1024))
-        print('Datastore FreeSpace          : {:.1f}GB'.format(float(each_ds.summary.freeSpace) /1024/1024/1024))
+        print('Datastore Name          : {}'.format(each_ds.name))
+        print('Datastore Capacity      : {:.1f}GB '.format(float(each_ds.summary.capacity) /1024/1024/1024))
+        print('Datastore FreeSpace     : {:.1f}GB'.format(float(each_ds.summary.freeSpace) /1024/1024/1024))
 
 else:
     print('ESXi {} not found'.format(args.esxi))
