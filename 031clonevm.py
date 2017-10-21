@@ -91,10 +91,10 @@ def get_args():
                         required=True,
                         action='store',
                         help='ESXi host of the new virtual_machine.')
-    parser.add_argument('-domain', '--domain',
+    parser.add_argument('-spec', '--spec',
                         required=True,
                         action='store',
-                        help='ESXi host of the new virtual_machine.')
+                        help='Guest customization spec of the new virtual_machine.')
 
 
     args = parser.parse_args()
@@ -162,9 +162,6 @@ def main():
 
     template_vm = get_vm_by_name(si, args.template)
 
-    #customization_spec_name = args.customspec
-    #guest_customization_spec = si.content.customizationSpecManager.GetCustomizationSpec(name='Linux')
-
     cluster_name = args.cluster
 
     cluster = get_cluster(si, cluster_name)
@@ -173,8 +170,16 @@ def main():
 
     #relocate_spec = vim.vm.RelocateSpec(pool=resourcePool)
 
-    cloneSpec = vim.vm.CloneSpec(powerOn=False, template=False, location=relocate_spec)#,
-    #                             customization=guest_customization_spec.spec)
+    customization_spec_name = args.spec
+
+    guest_customization_spec = content.customizationSpecManager.GetCustomizationSpec(name=customization_spec_name)
+    guest_customization_spec.spec.nicSettingMap[0].adapter.ip = vim.vm.customization.FixedIp()
+    guest_customization_spec.spec.nicSettingMap[0].adapter.ip.ipAddress = args.ipaddr
+    guest_customization_spec.spec.nicSettingMap[0].adapter.subnetMask = args.netmask
+    guest_customization_spec.spec.nicSettingMap[0].adapter.gateway = [args.dnsservers]
+
+    cloneSpec = vim.vm.CloneSpec(powerOn=False, template=False, location=relocate_spec, customization=guest_customization_spec.spec)
+
 
     print "Stage 1: Cloning VM..."
 
@@ -203,43 +208,10 @@ def main():
         time.sleep(5)
         print "     Configure VM CPU and Memory task state: %s" % taskcpu.info.state
 
-##################poweron###########################################
-
-
-    adaptermap = vim.vm.customization.AdapterMapping()
-    globalip = vim.vm.customization.GlobalIPSettings()
-    adaptermap.adapter = vim.vm.customization.IPSettings()
-    adaptermap.adapter.ip = vim.vm.customization.FixedIp()
-    adaptermap.adapter.ip.ipAddress = args.ipaddr
-    adaptermap.adapter.subnetMask = args.netmask
-    adaptermap.adapter.gateway = args.gateway
-    globalip.dnsServerList = args.dnsservers
-    adaptermap.adapter.dnsDomain = args.domain
-
-    globalip = vim.vm.customization.GlobalIPSettings()
-
-    # For Linux . For windows follow sysprep
-    ident = vim.vm.customization.LinuxPrep(domain=args.domain, hostName=vim.vm.customization.FixedName(name=args.name))
-
-    customspec = vim.vm.customization.Specification()
-    # For only one adapter
-    customspec.identity = ident
-    customspec.nicSettingMap = [adaptermap]
-    customspec.globalIPSettings = globalip
-
-
-    print "Stage 3: Reconfiguring VM Networks . . ."
-
-    tasknetwork = newvm.Customize(spec=customspec)
-    while tasknetwork.info.state not in [vim.TaskInfo.State.success,
-                                  vim.TaskInfo.State.error]:
-        time.sleep(5)
-        print "     Reconfigure VM network task state: %s" % tasknetwork.info.state
-
 
 ##################poweron###########################################
 
-    print "Stage 4: Powering on VM . . ."
+    print "Stage 3: Powering on VM . . ."
 
     taskpoweron = newvm.PowerOn()
 

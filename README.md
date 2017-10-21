@@ -30,7 +30,7 @@ shows in the requirements.txt
     -mask vm network mask
     -gw vm network gateway
     -dns vm dns servers
-    -domain vm default domain name
+	-spec guest customization spec
     -e esxi
     
 
@@ -93,7 +93,7 @@ Please open this link in the browser.
 
 The template vm must have the vmtools installed.
 
-    python 031clonevm.py -s vcip -o 443 -u administrator@vsphere.local -p password -t template_vm_name -n new_vm_name -c cluster -cpu 1 -mem 2 -ip 10.0.0.240 -mask 255.255.255.0 -gw 10.0.0.2 -dns 10.0.0.2 -domain domain.com
+    python 031clonevm.py -s vcip -o 443 -u administrator@vsphere.local -p password -t template_vm_name -n new_vm_name -c cluster -cpu 1 -mem 2 -ip 10.0.0.240 -mask 255.255.255.0 -gw 10.0.0.2 -dns 10.0.0.2 -spec Linux
     
     Output:
     Stage 1: Cloning VM...
@@ -102,9 +102,7 @@ The template vm must have the vmtools installed.
      Clone VM task state: success
     Stage 2: Configuring VM CPU and Memory...
      Configure VM CPU and Memory task state: success
-    Stage 3: Reconfiguring VM Networks . . .
-     Reconfigure VM network task state: success
-    Stage 4: Powering on VM . . .
+    Stage 3: Powering on VM . . .
      PowerON VM task state: success
     
 
