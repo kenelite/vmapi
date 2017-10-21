@@ -93,7 +93,7 @@ Please open this link in the browser.
 
 The template vm must have the vmtools installed.
 
-    python 031clonevm.py -s vcip -o 443 -u administrator@vsphere.local -p password -t CentOS6 -n xxx -c cluster -cpu 1 -mem 2 -ip 10.0.0.240 -mask 255.255.255.0 -gw 10.0.0.2 -dns 10.0.0.2 -domain domain.com
+    python 031clonevm.py -s vcip -o 443 -u administrator@vsphere.local -p password -t template_vm_name -n new_vm_name -c cluster -cpu 1 -mem 2 -ip 10.0.0.240 -mask 255.255.255.0 -gw 10.0.0.2 -dns 10.0.0.2 -domain domain.com
     
     Output:
     Stage 1: Cloning VM...
