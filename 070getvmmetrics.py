@@ -36,7 +36,7 @@ def GetArgs():
     parser.add_argument('-u', '--user', required=True, action='store', help='User name to use when connecting to host')
     parser.add_argument('-p', '--password', required=False, action='store',
                         help='Password to use when connecting to host')
-    parser.add_argument('-m', '--vm', required=True, action='store', help='On eor more Virtual Machines to report on')
+    parser.add_argument('-n', '--name', required=True, action='store', help='On eor more Virtual Machines to report on')
     parser.add_argument('-c', '--cert_check_skip', required=False, action='store_true', help='skip ssl certificate check')
     parser.add_argument('-i', '--interval', type=int, default=15, action='store',
                         help='Interval to average the vSphere stats over')
@@ -219,7 +219,7 @@ def GetProperties(content, viewType, props, specType):
 def main():
     args = GetArgs()
     try:
-        vmnames = args.vm
+        vmnames = args.name
         si = None
         if args.password:
             password = args.password
