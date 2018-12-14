@@ -36,7 +36,7 @@ testtools==2.3.0
 traceback2==1.4.0
 traitlets==4.3.2
 unittest2==1.1.0
-urllib3==1.22
+urllib3==1.23
 vcrpy==1.11.1
 wcwidth==0.1.7
 win-unicode-console==0.5
